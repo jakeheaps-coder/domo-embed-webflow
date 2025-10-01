@@ -42,7 +42,7 @@ Set these as **Secrets** in Webflow Cloud:
 4. Fill out:
    - **Name**: `Webflow AI Agentguide Embed V2`
    - **Description**: `OAuth client for embedding AI Agentguide on Webflow`
-   - **Scopes**: Check `Account`, `Audit`, `Dashboard`, `Data`, `User`, `Workflow`
+   - **Scopes**: Check `User`, `Account`, `Data`
 5. Save the Client ID and Secret for environment variables
 6. Ensure the service account has access to the AI Agentguide card
 
@@ -99,7 +99,7 @@ const CLOUD_FUNCTION_URL = 'https://your-site.webflow.io/.wf/functions/embed-dom
 
 **"OAuth request failed"**
 - Verify Client ID and Secret are correct
-- Check OAuth app has correct scopes (`Account`, `Audit`, `Dashboard`, `Data`, `User`, `Workflow`)
+- Check OAuth app has correct scopes (`User`, `Account`, `Data`)
 - Ensure service account has access to the AI Agentguide card
 
 **"Embed token request failed"**

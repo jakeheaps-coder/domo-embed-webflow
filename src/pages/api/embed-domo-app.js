@@ -97,7 +97,7 @@ async function handleRequest(request, locals) {
         'Authorization': `Basic ${authString}`,
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: 'grant_type=client_credentials&scope=data%20audit%20user%20dashboard%20embed'
+      body: 'grant_type=client_credentials&scope=user%20account%20data'
     });
 
     if (!tokenResponse.ok) {
@@ -178,11 +178,11 @@ async function handleRequest(request, locals) {
     const embedTokenData = await embedTokenResponse.json();
     console.log('Embed token generated successfully');
 
-    // Step 3: Return just the iframe embed with authenticated token
-    const embedUrl = `https://public.domo.com/embed/${DOMO_EMBED_ID}?embedToken=${embedTokenData.authentication}`;
+    // Step 3: Return simple iframe embed with authenticated token (like your format)
+    const embedUrl = `https://embed.domo.com/cards/${DOMO_EMBED_ID}?embedToken=${embedTokenData.authentication}`;
 
-    // Return just the iframe HTML
-    const iframeHtml = `<iframe src="${embedUrl}" width="100%" height="600" frameborder="0" title="Domo AI Agentguide"></iframe>`;
+    // Return simple iframe HTML in your preferred format
+    const iframeHtml = `<iframe src="${embedUrl}" width="600" height="600" marginheight="0" marginwidth="0" frameborder="0" title="Domo AI Agentguide"></iframe>`;
 
     return new Response(iframeHtml, {
       status: 200,
