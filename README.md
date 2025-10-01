@@ -106,6 +106,7 @@ const CLOUD_FUNCTION_URL = 'https://your-site.webflow.io/.wf/functions/embed-dom
 - Verify DOMO_EMBED_ID is the correct Embed ID (not regular card ID)
 - Ensure service account that created the OAuth client has access to the card
 - Check that the card is shared with the service account
+- Verify using correct endpoint: `/v1/stories/embed/auth` (not `/v1/cards/embed/auth`)
 
 ### Debug Mode
 

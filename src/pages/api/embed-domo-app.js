@@ -85,19 +85,17 @@ async function handleRequest(request, locals) {
       );
     }
 
-    // Step 1: Get OAuth token from Domo (using official API endpoint)
-    console.log('Requesting OAuth token from Domo...');
-    const tokenUrl = 'https://api.domo.com/oauth/token';
+    // Step 1: Get access token from Domo (using official pattern)
+    console.log('Requesting access token from Domo...');
+    const accessTokenUrl = 'https://api.domo.com/oauth/token';
 
     const authString = btoa(`${DOMO_CLIENT_ID}:${DOMO_CLIENT_SECRET}`);
 
-    const tokenResponse = await fetch(tokenUrl, {
-      method: 'POST',
+    const tokenResponse = await fetch(accessTokenUrl, {
+      method: 'GET',
       headers: {
-        'Authorization': `Basic ${authString}`,
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: 'grant_type=client_credentials&scope=user%20account%20data'
+        'Authorization': `Basic ${authString}`
+      }
     });
 
     if (!tokenResponse.ok) {
@@ -122,18 +120,20 @@ async function handleRequest(request, locals) {
     }
 
     const tokenData = await tokenResponse.json();
-    console.log('OAuth token received successfully');
+    console.log('Access token received successfully');
 
-    // Step 2: Generate embed authentication token (using official API endpoint for cards)
-    console.log('Generating embed authentication token...');
-    const embedTokenUrl = 'https://api.domo.com/v1/cards/embed/auth';
+    // Step 2: Generate embed token using official endpoint (following official embed.js pattern)
+    console.log('Generating embed token...');
+    const embedTokenUrl = 'https://api.domo.com/v1/stories/embed/auth';
 
     const embedRequestBody = {
-      sessionLength: 240, // 4 hours in minutes
+      sessionLength: 1440, // 24 hours in minutes
       authorizations: [
         {
-          token: 'embed-auth',
-          permissions: ['READ', 'FILTER', 'EXPORT']
+          token: DOMO_EMBED_ID, // Use embedId as token (official pattern)
+          permissions: ['READ', 'FILTER', 'EXPORT'],
+          filters: [], // Empty filters for now
+          policies: [], // Empty policies for now
         }
       ]
     };
@@ -149,7 +149,8 @@ async function handleRequest(request, locals) {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${tokenData.access_token}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json; charset=utf-8',
+        'Accept': '*/*'
       },
       body: JSON.stringify(embedRequestBody)
     });
@@ -162,7 +163,7 @@ async function handleRequest(request, locals) {
           error: 'Embed token generation failed',
           details: `Failed to generate embed token: ${embedTokenResponse.status}`,
           embedIdUsed: DOMO_EMBED_ID,
-          embedEndpoint: 'https://api.domo.com/v1/cards/embed/auth',
+          embedEndpoint: embedTokenUrl,
           domoEmbedResponse: embedErrorText
         }),
         {
@@ -178,13 +179,24 @@ async function handleRequest(request, locals) {
     const embedTokenData = await embedTokenResponse.json();
     console.log('Embed token generated successfully');
 
-    // Step 3: Return simple iframe embed with authenticated token (like your format)
-    const embedUrl = `https://embed.domo.com/cards/${DOMO_EMBED_ID}?embedToken=${embedTokenData.authentication}`;
+    // Step 3: Return HTML form that POSTs to private embed URL (official pattern)
+    const embedUrl = `${DOMO_BASE_URL}/embed/card/private/${DOMO_EMBED_ID}`;
 
-    // Return simple iframe HTML in your preferred format
-    const iframeHtml = `<iframe src="${embedUrl}" width="600" height="600" marginheight="0" marginwidth="0" frameborder="0" title="Domo AI Agentguide"></iframe>`;
+    const htmlForm = `
+    <html>
+      <body>
+        <form id="form" action="${embedUrl}" method="post">
+          <input type="hidden" name="embedToken" value='${embedTokenData.authentication}'>
+        </form>
+        <script>
+          document.getElementById("form").submit();
+        </script>
+      </body>
+    </html>`;
 
-    return new Response(iframeHtml, {
+    console.log('Returning HTML form with embed token, embedUrl:', embedUrl);
+
+    return new Response(htmlForm, {
       status: 200,
       headers: {
         'Content-Type': 'text/html',
