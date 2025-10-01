@@ -10,7 +10,7 @@
  * - DOMO_CLIENT_ID: OAuth client ID from Domo
  * - DOMO_CLIENT_SECRET: OAuth client secret from Domo
  * - DOMO_BASE_URL: Base Domo instance URL (e.g., https://company.domo.com)
- * - DOMO_CARD_ID: The card ID of the pro-code app card
+ * - DOMO_EMBED_ID: The embed ID from the card's embed configuration (e.g., MZLNO)
  * - DOMO_EMBED_TYPE: Type of embed (page/dashboard/card) - use "card" for pro-code apps
  */
 
@@ -53,7 +53,7 @@ async function handleRequest(request, locals) {
       DOMO_CLIENT_ID,
       DOMO_CLIENT_SECRET,
       DOMO_BASE_URL,
-      DOMO_CARD_ID,
+      DOMO_EMBED_ID,
       DOMO_EMBED_TYPE = 'card' // Default to 'card' for pro-code apps
     } = env;
 
@@ -68,7 +68,7 @@ async function handleRequest(request, locals) {
     });
 
     // Validate required environment variables
-    if (!DOMO_CLIENT_ID || !DOMO_CLIENT_SECRET || !DOMO_BASE_URL || !DOMO_CARD_ID) {
+    if (!DOMO_CLIENT_ID || !DOMO_CLIENT_SECRET || !DOMO_BASE_URL || !DOMO_EMBED_ID) {
       console.error('Missing required environment variables');
       return new Response(
         JSON.stringify({
@@ -140,7 +140,7 @@ async function handleRequest(request, locals) {
 
     console.log('Embed token request:', {
       url: embedTokenUrl,
-      cardId: DOMO_CARD_ID,
+      embedId: DOMO_EMBED_ID,
       hasAccessToken: !!tokenData.access_token,
       requestBody: embedRequestBody
     });
@@ -161,7 +161,7 @@ async function handleRequest(request, locals) {
         JSON.stringify({
           error: 'Embed token generation failed',
           details: `Failed to generate embed token: ${embedTokenResponse.status}`,
-          cardIdUsed: DOMO_CARD_ID,
+          embedIdUsed: DOMO_EMBED_ID,
           embedEndpoint: 'https://api.domo.com/v1/cards/embed/auth',
           domoEmbedResponse: embedErrorText
         }),
@@ -178,8 +178,8 @@ async function handleRequest(request, locals) {
     const embedTokenData = await embedTokenResponse.json();
     console.log('Embed token generated successfully');
 
-    // Step 3: Return HTML with embedded Domo card
-    const embedUrl = `${DOMO_BASE_URL}/embed/cards/${DOMO_CARD_ID}?embedToken=${embedTokenData.authentication}`;
+    // Step 3: Return HTML with embedded Domo card (private embed pattern)
+    const embedUrl = `${DOMO_BASE_URL}/embed/card/private/${DOMO_EMBED_ID}?embedToken=${embedTokenData.authentication}`;
 
     const htmlResponse = `
 <!DOCTYPE html>
