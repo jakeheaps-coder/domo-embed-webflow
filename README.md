@@ -22,6 +22,7 @@ Set these as **Secrets** in Webflow Cloud:
 | `DOMO_CLIENT_SECRET` | OAuth Client Secret from Domo | `your-secret-key-here` |
 | `DOMO_BASE_URL` | Your Domo instance URL | `https://yourcompany.domo.com` |
 | `DOMO_APP_ID` | ID of your AI Agentguide app | `123456789` |
+| `DOMO_EMBED_TYPE` | Type of embed (optional) | `page` (default for pages/dashboards) |
 
 ### 3. Getting Your Domo App ID
 
