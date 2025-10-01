@@ -128,29 +128,42 @@ async function handleRequest(request, locals) {
     console.log('Generating embed authentication token...');
     const embedTokenUrl = 'https://api.domo.com/v1/cards/embed/auth';
 
+    const embedRequestBody = {
+      sessionLength: 240, // 4 hours in minutes
+      authorizations: [
+        {
+          token: 'embed-auth',
+          permissions: ['READ']
+        }
+      ]
+    };
+
+    console.log('Embed token request:', {
+      url: embedTokenUrl,
+      cardId: DOMO_CARD_ID,
+      hasAccessToken: !!tokenData.access_token,
+      requestBody: embedRequestBody
+    });
+
     const embedTokenResponse = await fetch(embedTokenUrl, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${tokenData.access_token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        sessionLength: 240, // 4 hours in minutes
-        authorizations: [
-          {
-            token: 'embed-auth',
-            permissions: ['READ']
-          }
-        ]
-      })
+      body: JSON.stringify(embedRequestBody)
     });
 
     if (!embedTokenResponse.ok) {
-      console.error('Embed token request failed:', embedTokenResponse.status, embedTokenResponse.statusText);
+      const embedErrorText = await embedTokenResponse.text();
+      console.error('Embed token request failed:', embedTokenResponse.status, embedTokenResponse.statusText, embedErrorText);
       return new Response(
         JSON.stringify({
           error: 'Embed token generation failed',
-          details: `Failed to generate embed token: ${embedTokenResponse.status}`
+          details: `Failed to generate embed token: ${embedTokenResponse.status}`,
+          cardIdUsed: DOMO_CARD_ID,
+          embedEndpoint: 'https://api.domo.com/v1/cards/embed/auth',
+          domoEmbedResponse: embedErrorText
         }),
         {
           status: 500,
