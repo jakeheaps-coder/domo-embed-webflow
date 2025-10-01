@@ -21,7 +21,7 @@ Set these as **Secrets** in Webflow Cloud:
 | `DOMO_CLIENT_ID` | OAuth Client ID from Domo | `a1b2c3d4-e5f6-7890-abcd-ef1234567890` |
 | `DOMO_CLIENT_SECRET` | OAuth Client Secret from Domo | `your-secret-key-here` |
 | `DOMO_BASE_URL` | Your Domo instance URL | `https://yourcompany.domo.com` |
-| `DOMO_CARD_ID` | Card ID of your AI Agentguide card | `987654321` |
+| `DOMO_CARD_ID` | Embed ID from your AI Agentguide card | `MZLNO` |
 | `DOMO_EMBED_TYPE` | Type of embed (optional) | `card` (default for pro-code apps) |
 
 ### 3. Getting Your Domo Card ID
@@ -100,9 +100,9 @@ const CLOUD_FUNCTION_URL = 'https://your-site.webflow.io/.wf/functions/embed-dom
 - Ensure DOMO_BASE_URL doesn't have trailing slash
 
 **"Embed token request failed"**
-- Verify DOMO_APP_ID is correct
-- Check app exists and is accessible
-- Ensure OAuth app has appropriate permissions
+- Verify DOMO_CARD_ID is correct embed ID (not regular card ID)
+- Check card exists and is accessible
+- Ensure OAuth app has appropriate permissions to access the specific card/embed
 
 ### Debug Mode
 
