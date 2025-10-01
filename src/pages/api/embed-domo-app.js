@@ -2,16 +2,16 @@
  * Webflow Cloud Function: Embed Domo AI Use Case Chat App
  *
  * This serverless function handles:
- * 1. OAuth authentication with Domo using client credentials
+ * 1. OAuth authentication with Domo using service account credentials
  * 2. Generate embed authentication token
- * 3. Return HTML with embedded Domo app iframe
+ * 3. Return iframe embed with authenticated token
  *
  * Environment Variables Required (set as Secrets in Webflow Cloud):
  * - DOMO_CLIENT_ID: OAuth client ID from Domo
  * - DOMO_CLIENT_SECRET: OAuth client secret from Domo
  * - DOMO_BASE_URL: Base Domo instance URL (e.g., https://company.domo.com)
  * - DOMO_EMBED_ID: The embed ID from the card's embed configuration (e.g., MZLNO)
- * - DOMO_EMBED_TYPE: Type of embed (page/dashboard/card) - use "card" for pro-code apps
+ * - DOMO_EMBED_TYPE: Type of embed (page/dashboard/card) - use "card" for pro-code apps (optional)
  */
 
 export async function GET({ request, locals }) {
@@ -97,7 +97,7 @@ async function handleRequest(request, locals) {
         'Authorization': `Basic ${authString}`,
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: 'grant_type=client_credentials&scope=data%20audit%20user%20dashboard'
+      body: 'grant_type=client_credentials&scope=data%20audit%20user%20dashboard%20embed'
     });
 
     if (!tokenResponse.ok) {
@@ -133,7 +133,7 @@ async function handleRequest(request, locals) {
       authorizations: [
         {
           token: 'embed-auth',
-          permissions: ['READ']
+          permissions: ['READ', 'FILTER', 'EXPORT']
         }
       ]
     };
@@ -178,114 +178,13 @@ async function handleRequest(request, locals) {
     const embedTokenData = await embedTokenResponse.json();
     console.log('Embed token generated successfully');
 
-    // Step 3: Return HTML with embedded Domo card (private embed pattern)
-    const embedUrl = `${DOMO_BASE_URL}/embed/card/private/${DOMO_EMBED_ID}?embedToken=${embedTokenData.authentication}`;
+    // Step 3: Return just the iframe embed with authenticated token
+    const embedUrl = `https://public.domo.com/embed/${DOMO_EMBED_ID}?embedToken=${embedTokenData.authentication}`;
 
-    const htmlResponse = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Agentguide - Domo Embed</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f8f9fa;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .embed-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            min-height: 80vh;
-        }
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 600;
-        }
-        .header p {
-            margin: 5px 0 0 0;
-            opacity: 0.9;
-            font-size: 14px;
-        }
-        iframe {
-            width: 100%;
-            height: calc(80vh - 80px);
-            border: none;
-            display: block;
-        }
-        .loading {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 200px;
-            font-size: 16px;
-            color: #666;
-        }
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            iframe {
-                height: calc(90vh - 80px);
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="embed-container">
-            <div class="header">
-                <h1>🤖 AI Agentguide</h1>
-                <p>Powered by Domo - Intelligent Business Analytics</p>
-            </div>
-            <div class="loading" id="loading">
-                Loading AI Agentguide...
-            </div>
-            <iframe
-                src="${embedUrl}"
-                title="Domo AI Agentguide"
-                onload="document.getElementById('loading').style.display='none'"
-                onerror="document.getElementById('loading').innerHTML='Failed to load. Please refresh the page.'"
-                sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation">
-            </iframe>
-        </div>
-    </div>
+    // Return just the iframe HTML
+    const iframeHtml = `<iframe src="${embedUrl}" width="100%" height="600" frameborder="0" title="Domo AI Agentguide"></iframe>`;
 
-    <script>
-        // Auto-refresh token before expiration (4 hours)
-        setTimeout(() => {
-            console.log('Refreshing embed token...');
-            window.location.reload();
-        }, 3.5 * 60 * 60 * 1000); // Refresh after 3.5 hours
-
-        // Handle iframe loading errors
-        window.addEventListener('message', function(event) {
-            if (event.data && event.data.type === 'domo-embed-error') {
-                console.error('Domo embed error:', event.data.message);
-                document.getElementById('loading').innerHTML = 'Error loading AI Agentguide. Please contact support.';
-            }
-        });
-    </script>
-</body>
-</html>`;
-
-    return new Response(htmlResponse, {
+    return new Response(iframeHtml, {
       status: 200,
       headers: {
         'Content-Type': 'text/html',
