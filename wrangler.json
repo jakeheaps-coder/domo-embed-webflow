@@ -1,0 +1,7 @@
+{
+  "name": "domo-embed-webflow",
+  "compatibility_date": "2024-09-30",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ]
+}

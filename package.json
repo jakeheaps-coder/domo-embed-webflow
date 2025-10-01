@@ -1,0 +1,38 @@
+{
+  "name": "domo-embed-webflow",
+  "version": "1.0.0",
+  "description": "Webflow Cloud functions for embedding Domo AI Agentguide application",
+  "main": "functions/embed-domo-app.js",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "domo",
+    "webflow",
+    "embedding",
+    "oauth",
+    "serverless",
+    "ai",
+    "agentguide"
+  ],
+  "author": "Your Company",
+  "license": "UNLICENSED",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/domo-embed-webflow.git"
+  },
+  "dependencies": {
+    "astro": "^4.0.0",
+    "@astrojs/cloudflare": "^11.0.0",
+    "@astrojs/react": "^3.0.0"
+  },
+  "devDependencies": {}
+}
