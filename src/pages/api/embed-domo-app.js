@@ -73,7 +73,7 @@ async function handleRequest(request, context) {
 
     // Step 1: Get OAuth token from Domo (using official API endpoint)
     console.log('Requesting OAuth token from Domo...');
-    const tokenUrl = 'https://api.domo.com/oauth/token?grant_type=client_credentials&scope=data%20audit%20user%20dashboard';
+    const tokenUrl = 'https://api.domo.com/oauth/token';
 
     const authString = btoa(`${DOMO_CLIENT_ID}:${DOMO_CLIENT_SECRET}`);
 
@@ -82,7 +82,8 @@ async function handleRequest(request, context) {
       headers: {
         'Authorization': `Basic ${authString}`,
         'Content-Type': 'application/x-www-form-urlencoded'
-      }
+      },
+      body: 'grant_type=client_credentials&scope=data%20audit%20user%20dashboard'
     });
 
     if (!tokenResponse.ok) {
