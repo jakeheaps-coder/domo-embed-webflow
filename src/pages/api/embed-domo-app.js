@@ -178,24 +178,15 @@ async function handleRequest(request, locals) {
     const embedTokenData = await embedTokenResponse.json();
     console.log('Embed token generated successfully');
 
-    // Step 3: Return HTML form that POSTs to private embed URL (official pattern)
-    const embedUrl = `${DOMO_BASE_URL}/embed/card/private/${DOMO_EMBED_ID}`;
+    // Step 3: Return simple iframe with embed token for service account authentication
+    const embedUrl = `https://embed.domo.com/cards/${DOMO_EMBED_ID}?embedToken=${embedTokenData.authentication}`;
 
-    const htmlForm = `
-    <html>
-      <body>
-        <form id="form" action="${embedUrl}" method="post">
-          <input type="hidden" name="embedToken" value='${embedTokenData.authentication}'>
-        </form>
-        <script>
-          document.getElementById("form").submit();
-        </script>
-      </body>
-    </html>`;
+    // Return simple iframe HTML in your preferred format
+    const iframeHtml = `<iframe src="${embedUrl}" width="600" height="600" marginheight="0" marginwidth="0" frameborder="0" title="Domo AI Agentguide"></iframe>`;
 
-    console.log('Returning HTML form with embed token, embedUrl:', embedUrl);
+    console.log('Returning simple iframe with embed token, embedUrl:', embedUrl);
 
-    return new Response(htmlForm, {
+    return new Response(iframeHtml, {
       status: 200,
       headers: {
         'Content-Type': 'text/html',
