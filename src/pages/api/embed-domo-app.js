@@ -11,7 +11,7 @@
  * - DOMO_CLIENT_SECRET: OAuth client secret from Domo
  * - DOMO_BASE_URL: Base Domo instance URL (e.g., https://company.domo.com)
  * - DOMO_APP_ID: The ID of the ai-use-case-chat-combined app
- * - DOMO_EMBED_TYPE: Type of embed (page/dashboard/card) - use "page" for dashboards
+ * - DOMO_EMBED_TYPE: Type of embed (page/dashboard/card) - use "card" for pro-code apps
  */
 
 export async function GET(context) {
@@ -50,7 +50,7 @@ async function handleRequest(request, context) {
       DOMO_CLIENT_SECRET,
       DOMO_BASE_URL,
       DOMO_APP_ID,
-      DOMO_EMBED_TYPE = 'page' // Default to 'page' for dashboards
+      DOMO_EMBED_TYPE = 'card' // Default to 'card' for pro-code apps
     } = env;
 
     // Validate required environment variables
@@ -105,9 +105,9 @@ async function handleRequest(request, context) {
     const tokenData = await tokenResponse.json();
     console.log('OAuth token received successfully');
 
-    // Step 2: Generate embed authentication token (using official API endpoint)
+    // Step 2: Generate embed authentication token (using official API endpoint for cards)
     console.log('Generating embed authentication token...');
-    const embedTokenUrl = 'https://api.domo.com/v1/stories/embed/auth';
+    const embedTokenUrl = 'https://api.domo.com/v1/cards/embed/auth';
 
     const embedTokenResponse = await fetch(embedTokenUrl, {
       method: 'POST',
