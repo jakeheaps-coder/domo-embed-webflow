@@ -87,7 +87,7 @@ async function handleRequest(request, locals) {
 
     // Step 1: Get access token from Domo (using official pattern)
     console.log('Requesting access token from Domo...');
-    const accessTokenUrl = 'https://api.domo.com/oauth/token';
+    const accessTokenUrl = 'https://api.domo.com/oauth/token?grant_type=client_credentials&scope=data%20audit%20user%20dashboard';
 
     const authString = btoa(`${DOMO_CLIENT_ID}:${DOMO_CLIENT_SECRET}`);
 
