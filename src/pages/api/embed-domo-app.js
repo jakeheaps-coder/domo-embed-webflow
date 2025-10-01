@@ -87,11 +87,15 @@ async function handleRequest(request, context) {
     });
 
     if (!tokenResponse.ok) {
-      console.error('OAuth token request failed:', tokenResponse.status, tokenResponse.statusText);
+      const errorText = await tokenResponse.text();
+      console.error('OAuth token request failed:', tokenResponse.status, tokenResponse.statusText, errorText);
       return new Response(
         JSON.stringify({
           error: 'Authentication failed',
-          details: `Failed to get OAuth token: ${tokenResponse.status}`
+          details: `Failed to get OAuth token: ${tokenResponse.status}`,
+          clientIdFound: DOMO_CLIENT_ID ? `Yes (${DOMO_CLIENT_ID.substring(0, 8)}...)` : 'No',
+          baseUrlFound: DOMO_BASE_URL || 'No',
+          domoResponse: errorText
         }),
         {
           status: 401,
