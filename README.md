@@ -21,15 +21,16 @@ Set these as **Secrets** in Webflow Cloud:
 | `DOMO_CLIENT_ID` | OAuth Client ID from Domo | `a1b2c3d4-e5f6-7890-abcd-ef1234567890` |
 | `DOMO_CLIENT_SECRET` | OAuth Client Secret from Domo | `your-secret-key-here` |
 | `DOMO_BASE_URL` | Your Domo instance URL | `https://yourcompany.domo.com` |
-| `DOMO_APP_ID` | ID of your AI Agentguide app | `123456789` |
+| `DOMO_CARD_ID` | Card ID of your AI Agentguide card | `987654321` |
 | `DOMO_EMBED_TYPE` | Type of embed (optional) | `card` (default for pro-code apps) |
 
-### 3. Getting Your Domo App ID
+### 3. Getting Your Domo Card ID
 
 1. Open your Domo instance
-2. Navigate to your AI Agentguide app
-3. Look at the URL: `https://yourcompany.domo.com/page/123456789`
-4. The number at the end (`123456789`) is your `DOMO_APP_ID`
+2. Navigate to your AI Agentguide card (not the page)
+3. Look at the URL when viewing the card: `https://yourcompany.domo.com/kpis/details/987654321`
+4. The number at the end (`987654321`) is your `DOMO_CARD_ID`
+5. **Note**: This is different from the app ID - you need the card ID for embedding
 
 ### 4. Creating Domo OAuth Application
 

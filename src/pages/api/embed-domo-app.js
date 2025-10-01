@@ -10,7 +10,7 @@
  * - DOMO_CLIENT_ID: OAuth client ID from Domo
  * - DOMO_CLIENT_SECRET: OAuth client secret from Domo
  * - DOMO_BASE_URL: Base Domo instance URL (e.g., https://company.domo.com)
- * - DOMO_APP_ID: The ID of the ai-use-case-chat-combined app
+ * - DOMO_CARD_ID: The card ID of the pro-code app card
  * - DOMO_EMBED_TYPE: Type of embed (page/dashboard/card) - use "card" for pro-code apps
  */
 
@@ -49,12 +49,12 @@ async function handleRequest(request, context) {
       DOMO_CLIENT_ID,
       DOMO_CLIENT_SECRET,
       DOMO_BASE_URL,
-      DOMO_APP_ID,
+      DOMO_CARD_ID,
       DOMO_EMBED_TYPE = 'card' // Default to 'card' for pro-code apps
     } = env;
 
     // Validate required environment variables
-    if (!DOMO_CLIENT_ID || !DOMO_CLIENT_SECRET || !DOMO_BASE_URL || !DOMO_APP_ID) {
+    if (!DOMO_CLIENT_ID || !DOMO_CLIENT_SECRET || !DOMO_BASE_URL || !DOMO_CARD_ID) {
       console.error('Missing required environment variables');
       return new Response(
         JSON.stringify({
@@ -146,8 +146,8 @@ async function handleRequest(request, context) {
     const embedTokenData = await embedTokenResponse.json();
     console.log('Embed token generated successfully');
 
-    // Step 3: Return HTML with embedded Domo app
-    const embedUrl = `${DOMO_BASE_URL}/embed/pages/${DOMO_APP_ID}?embedToken=${embedTokenData.authentication}`;
+    // Step 3: Return HTML with embedded Domo card
+    const embedUrl = `${DOMO_BASE_URL}/embed/cards/${DOMO_CARD_ID}?embedToken=${embedTokenData.authentication}`;
 
     const htmlResponse = `
 <!DOCTYPE html>
