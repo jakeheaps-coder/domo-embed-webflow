@@ -122,9 +122,9 @@ async function handleRequest(request, locals) {
     const tokenData = await tokenResponse.json();
     console.log('Access token received successfully');
 
-    // Step 2: Generate embed token using official endpoint (following official embed.js pattern)
+    // Step 2: Generate embed token using official endpoint for CARDS (following official embed.js pattern)
     console.log('Generating embed token...');
-    const embedTokenUrl = 'https://api.domo.com/v1/stories/embed/auth';
+    const embedTokenUrl = 'https://api.domo.com/v1/cards/embed/auth';
 
     const embedRequestBody = {
       sessionLength: 1440, // 24 hours in minutes
@@ -134,6 +134,8 @@ async function handleRequest(request, locals) {
           permissions: ['READ', 'FILTER', 'EXPORT'],
           filters: [], // Empty filters for now
           policies: [], // Empty policies for now
+          datasetRedirects: [], // Empty dataset redirects for now
+          sqlFilters: [] // Empty SQL filters for now
         }
       ]
     };
