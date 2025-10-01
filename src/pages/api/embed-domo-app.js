@@ -14,15 +14,15 @@
  * - DOMO_EMBED_TYPE: Type of embed (page/dashboard/card) - use "card" for pro-code apps
  */
 
-export async function GET(context) {
-  return await handleRequest(context.request, context);
+export async function GET({ request, locals }) {
+  return await handleRequest(request, locals);
 }
 
-export async function POST(context) {
-  return await handleRequest(context.request, context);
+export async function POST({ request, locals }) {
+  return await handleRequest(request, locals);
 }
 
-export async function OPTIONS(context) {
+export async function OPTIONS() {
   return new Response(null, {
     status: 200,
     headers: {
@@ -33,7 +33,7 @@ export async function OPTIONS(context) {
   });
 }
 
-async function handleRequest(request, context) {
+async function handleRequest(request, locals) {
   // CORS headers for all responses
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -42,8 +42,12 @@ async function handleRequest(request, context) {
   };
 
   try {
-    // Get environment variables from Astro context
-    const env = context.locals.runtime?.env || process.env;
+    // Get environment variables from Webflow Cloud - try multiple approaches
+    const runtimeEnv = locals.runtime?.env || {};
+    const processEnv = process.env || {};
+
+    // Merge environment sources (runtime takes precedence)
+    const env = { ...processEnv, ...runtimeEnv };
 
     const {
       DOMO_CLIENT_ID,
@@ -52,6 +56,16 @@ async function handleRequest(request, context) {
       DOMO_CARD_ID,
       DOMO_EMBED_TYPE = 'card' // Default to 'card' for pro-code apps
     } = env;
+
+    // Debug environment variable access
+    console.log('Environment debug:', {
+      hasRuntime: !!locals.runtime,
+      hasRuntimeEnv: !!locals.runtime?.env,
+      hasProcessEnv: !!process.env,
+      runtimeKeys: Object.keys(runtimeEnv),
+      processKeys: Object.keys(processEnv).filter(k => k.startsWith('DOMO_')),
+      clientIdSource: runtimeEnv.DOMO_CLIENT_ID ? 'runtime' : processEnv.DOMO_CLIENT_ID ? 'process' : 'none'
+    });
 
     // Validate required environment variables
     if (!DOMO_CLIENT_ID || !DOMO_CLIENT_SECRET || !DOMO_BASE_URL || !DOMO_CARD_ID) {
