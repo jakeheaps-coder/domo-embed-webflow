@@ -131,11 +131,8 @@ async function handleRequest(request, locals) {
       authorizations: [
         {
           token: DOMO_EMBED_ID, // Use embedId as token (official pattern)
-          permissions: ['READ', 'FILTER', 'EXPORT'],
-          filters: [], // Empty filters for now
-          policies: [], // Empty policies for now
-          datasetRedirects: [], // Empty dataset redirects for now
-          sqlFilters: [] // Empty SQL filters for now
+          permissions: ['READ', 'FILTER', 'EXPORT']
+          // Omit empty filters, policies, etc. to avoid deserialization issues
         }
       ]
     };
