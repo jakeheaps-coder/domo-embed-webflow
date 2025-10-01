@@ -78,7 +78,7 @@ async function handleRequest(request, context) {
     const authString = btoa(`${DOMO_CLIENT_ID}:${DOMO_CLIENT_SECRET}`);
 
     const tokenResponse = await fetch(tokenUrl, {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Authorization': `Basic ${authString}`,
         'Content-Type': 'application/x-www-form-urlencoded'
