@@ -178,8 +178,9 @@ async function handleRequest(request, locals) {
     const embedTokenData = await embedTokenResponse.json();
     console.log('Embed token generated successfully');
 
-    // Step 3: Return simple iframe with embed token for service account authentication
-    const embedUrl = `https://embed.domo.com/cards/${DOMO_EMBED_ID}?embedToken=${embedTokenData.authentication}`;
+    // Step 3: Return iframe with embed token in URL fragment to preserve through redirects
+    // Use URL fragment (#) instead of query parameter (?) to preserve token through Domo redirects
+    const embedUrl = `https://embed.domo.com/cards/${DOMO_EMBED_ID}#embedToken=${embedTokenData.authentication}`;
 
     // Return simple iframe HTML in your preferred format
     const iframeHtml = `<iframe src="${embedUrl}" width="600" height="600" marginheight="0" marginwidth="0" frameborder="0" title="Domo AI Agentguide"></iframe>`;
