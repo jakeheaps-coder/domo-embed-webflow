@@ -182,7 +182,7 @@ async function handleRequest(request, locals) {
     const embedToken = embedTokenData.authentication;
 
     // Use Domo's official embed URL pattern with authentication
-    const embedUrl = `https://embed.domo.com/cards/${DOMO_EMBED_ID}${embedTo}`;
+    const embedUrl = `https://embed.domo.com/cards/${DOMO_EMBED_ID}`;
 
     // Set authentication via official Domo embed cookie (this is how embed.js works)
     const authCookieName = 'domo-authToken-embed';
