@@ -182,14 +182,14 @@ async function handleRequest(request, locals) {
     const embedToken = embedTokenData.authentication;
 
     // Use Domo's official embed URL pattern with authentication
-    const embedUrl = `https://embed.domo.com/cards/${DOMO_EMBED_ID}`;
+    const embedUrl = `https://embed.domo.com/cards/${DOMO_EMBED_ID}${embedTo}`;
 
     // Set authentication via official Domo embed cookie (this is how embed.js works)
     const authCookieName = 'domo-authToken-embed';
     const embedAuthValue = `embed-${embedToken}`;
 
     // Create iframe HTML using Domo's official embed authentication pattern
-    const iframeHtml = `
+    let iframeHtml = `
     <script>
       console.log('🎯 USING DOMO OFFICIAL EMBED AUTHENTICATION PATTERN');
 
@@ -217,6 +217,19 @@ async function handleRequest(request, locals) {
       }, 2000);
     </script>
     <iframe src="${embedUrl}" width="600" height="600" marginheight="0" marginwidth="0" frameborder="0" title="Domo AI Agentguide"></iframe>`;
+      
+    iframeHtml = `
+    <html>
+    <body>
+      <form id="form" action="${embedUrl}" method="post">
+        <input type="hidden" name="embedToken" value='${embedToken}'>
+      </form>
+      <script>
+        document.getElementById("form").submit();
+      </script>
+    </body>
+  </html>`;
+
 
     console.log('Returning iframe with OFFICIAL DOMO EMBED AUTHENTICATION');
     console.log('Auth strategies: Official Domo cookies + Cross-domain auth injection');
@@ -231,8 +244,6 @@ async function handleRequest(request, locals) {
         'Expires': '0',
         // Set official Domo cookies in response headers
         'Set-Cookie': [
-          `${authCookieName}=${embedToken}; domain=.domo.com; path=/; max-age=86400; SameSite=None; Secure`,
-          `domo-authToken=${embedToken}; domain=.domo.com; path=/; max-age=86400; SameSite=None; Secure`
         ].join(', '),
         ...corsHeaders
       }
