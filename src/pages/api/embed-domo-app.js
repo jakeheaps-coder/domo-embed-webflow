@@ -178,14 +178,69 @@ async function handleRequest(request, locals) {
     const embedTokenData = await embedTokenResponse.json();
     console.log('Embed token generated successfully');
 
-    // Step 3: Return iframe with embed token in URL fragment to preserve through redirects
-    // Use URL fragment (#) instead of query parameter (?) to preserve token through Domo redirects
-    const embedUrl = `https://embed.domo.com/cards/${DOMO_EMBED_ID}#embedToken=${embedTokenData.authentication}`;
+    // Step 3: Return iframe with embed token passed in MULTIPLE ways to ensure delivery
+    const embedToken = embedTokenData.authentication;
 
-    // Return simple iframe HTML in your preferred format
-    const iframeHtml = `<iframe src="${embedUrl}" width="600" height="600" marginheight="0" marginwidth="0" frameborder="0" title="Domo AI Agentguide"></iframe>`;
+    // Try multiple URL parameter approaches
+    const embedUrl = `https://embed.domo.com/cards/${DOMO_EMBED_ID}?embedTokenValue=${embedToken}&embedToken=${embedToken}&token=${embedToken}&auth=${embedToken}#embedTokenValue=${embedToken}&embedToken=${embedToken}&token=${embedToken}`;
 
-    console.log('Returning simple iframe with embed token, embedUrl:', embedUrl);
+    // Create iframe HTML with multiple token passing strategies
+    const iframeHtml = `
+    <script>
+      console.log('🚀 MULTI-STRATEGY EMBED TOKEN PASSING ACTIVATED');
+      console.log('📍 Strategy 1: URL parameters (embedTokenValue, embedToken, token, auth)');
+      console.log('📍 Strategy 2: Hash fragments (embedTokenValue, embedToken, token)');
+      console.log('📍 Strategy 3: Cookies (domoEmbedToken, embedToken, token)');
+      console.log('📍 Strategy 4: localStorage/sessionStorage');
+      console.log('📍 Strategy 5: PostMessage to iframe');
+
+      // Set multiple cookies as backup
+      const tokenValue = '${embedToken}';
+      document.cookie = 'domoEmbedToken=' + tokenValue + '; path=/; max-age=86400; SameSite=None; Secure';
+      document.cookie = 'embedToken=' + tokenValue + '; path=/; max-age=86400; SameSite=None; Secure';
+      document.cookie = 'token=' + tokenValue + '; path=/; max-age=86400; SameSite=None; Secure';
+      document.cookie = 'domo_embed_auth=' + tokenValue + '; path=/; max-age=86400; SameSite=None; Secure';
+
+      // Set localStorage/sessionStorage as backup
+      try {
+        localStorage.setItem('domoEmbedToken', tokenValue);
+        localStorage.setItem('embedToken', tokenValue);
+        localStorage.setItem('token', tokenValue);
+        sessionStorage.setItem('domoEmbedToken', tokenValue);
+        sessionStorage.setItem('embedToken', tokenValue);
+        sessionStorage.setItem('token', tokenValue);
+      } catch(e) {
+        console.log('Storage not available:', e.message);
+      }
+
+      // PostMessage to iframe after it loads
+      window.addEventListener('load', function() {
+        const iframe = document.querySelector('iframe');
+        if (iframe) {
+          setTimeout(() => {
+            try {
+              iframe.contentWindow.postMessage({
+                type: 'EMBED_TOKEN',
+                embedToken: tokenValue,
+                embedTokenValue: tokenValue,
+                token: tokenValue
+              }, '*');
+              console.log('📨 PostMessage sent to iframe with embed token');
+            } catch(e) {
+              console.log('PostMessage failed:', e.message);
+            }
+          }, 1000);
+        }
+      });
+
+      console.log('🔗 Iframe URL with all strategies applied');
+      console.log('Token preview:', tokenValue.substring(0, 20) + '...');
+    </script>
+    <iframe src="${embedUrl}" width="600" height="600" marginheight="0" marginwidth="0" frameborder="0" title="Domo AI Agentguide"></iframe>`;
+
+    console.log('Returning iframe with MULTI-STRATEGY embed token passing');
+    console.log('Strategies: URL params, hash fragments, cookies, localStorage, postMessage');
+    console.log('Full embedUrl:', embedUrl);
 
     return new Response(iframeHtml, {
       status: 200,
@@ -194,6 +249,12 @@ async function handleRequest(request, locals) {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
         'Pragma': 'no-cache',
         'Expires': '0',
+        // Set multiple cookies in response headers as additional backup
+        'Set-Cookie': [
+          `domoEmbedToken=${embedToken}; path=/; max-age=86400; SameSite=None; Secure`,
+          `embedToken=${embedToken}; path=/; max-age=86400; SameSite=None; Secure`,
+          `token=${embedToken}; path=/; max-age=86400; SameSite=None; Secure`
+        ].join(', '),
         ...corsHeaders
       }
     });
